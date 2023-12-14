@@ -1,22 +1,14 @@
-version: "3.3"
+version: '3.7'
+
 services:
-  icecast:
-    image: moul/icecast
-    container_name: icecast
-    restart: always
-    network_mode: host
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${PWD}/icecast.xml:/etc/icecast2/icecast.xml
-    ports:
-      - 8000:8000
   nrsc5:
-    build: .
+    image: ghcr.io/foxxmd/nrsc5-rtlsdr-icecast
     container_name: nrsc5
-    restart: always
-    privileged: true
-    network_mode: host
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "50m"
+    environment:
+      - RADIO_STATION=90.1
+      #- CHANNEL=1
+      #- AUDIO_FORMAT=MP3
+      - ICECAST_URL=localhost:8000/myradio
+      - ICECAST_PWD=hackme
+    devices:
+      - "/dev/bus/usb/005/006"

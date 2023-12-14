@@ -1,23 +1,74 @@
-# sample-icecast-nrsc5
-A sample docker setup for streaming HD radio from a USB RTL-SDR dongle to Icecast, so you can listen to it as an m3u stream.
+# nrsc5-rtlsdr-icecast
+
+Based on [sample-icecast-nrsc5](https://github.com/zacs/sample-icecast-nrsc5) by [zacs](https://github.com/zacs) with inspiration from this [pull request.](https://github.com/zacs/sample-icecast-nrsc5/pull/1)
+
+Use an RTL-SDR radio to stream HD radio to an Icecast server. If you do not already have an Icecast server setup I would recommend [jeer/docker-icecast.](https://github.com/jee-r/docker-icecast)
 
 ## Setup
+
+### Docker Image
+
+```
+ghcr.io/foxxmd/nrsc5-rtlsdr-icecast
+docker.io/foxxmd/nrsc5-rtlsdr-icecast
+```
+
+### Local Docker Build
 
 It should be straightforward to get this going, assuming you have Docker and compose setup:
 
 1. Clone this repo
-2. In your local copy, update the following:
-    - `ezstream.xml` (specifically the `hostname`, `password`, `mountpoint`, and `stream_name` fields). More examples can be found [in the `ezstream` repo](https://github.com/xiph/ezstream/tree/develop/examples).
-    - `icecast.xml` (specifically the `authentication`, `location`, `admin`, `hostname`, and `listen-socket` sections). More details [in the Icecast docs](https://icecast.org/docs/icecast-latest/config-file.html).
-    - Edit [line 15](https://github.com/zacs/sample-icecast-nrsc5/blob/main/start_nrsc5.sh#L15) in `start_nrsc5.sh` so that it is tuned to your local station's frequency (it's set to 90.3mhz by default in the file in this repo)
-3. Move to the repo's directory and `docker-compose up -d`.
-4. Point your browser to your Docker host's IP at port 8000 and login using the Icecast admin credentials. You should see something like this, click the m3u link in the upper right and enjoy. 
+2. Run `docker build -t nrsc5`
 
-![image](https://user-images.githubusercontent.com/27705/130721608-12659586-d384-4ee0-8b71-bdc971952174.png)
+Substitute `nrsc5` for remote images (docker.io/ghcr.io) in documentation.
 
+## Usage
 
-## Notes
+Minimal run command example:
+```
+ docker run -e "RADIO_STATION=90.1" -e "ICECAST_URL=192.168.1.10:8000/myradio" -e "ICECAST_PWD=icecastPass" --device /dev/bus/usb/005/006 ghcr.io/foxxmd/nrsc5-rtlsdr-icecast
+```
 
-- Find your area's frequency: https://www.weather.gov/nwr/station_listing
-- The `-d 0` in [line 15](https://github.com/zacs/sample-icecast-nrsc5/blob/main/start_nrsc5.sh#L15) indicates the first RTL-SDR dongle. If you want to add another docker image to stream another station, you'll need to change it to `-d 1` (etc) in the new image. 
-- If you hear a bunch of static, you may have an antenna that is not tuned for the FM bands, or your placement may be bad. Experiement a bit. 
+Or use the [docker-compose.yml](/docker-compose.yml) example.
+
+| Environmental Variable | Required | Default |                           Description                           |
+|------------------------|----------|---------|-----------------------------------------------------------------|
+| `RADIO_STATION`        | **Yes**  |         | The radio station to tune to                                    |
+| `CHANNEL`              | No       | 1       | The HD channel on the radio station to tune in to               |
+| `AUDIO_FORMAT`         | No       | MP3     | Encode icecast stream to this format. Options: MP3, OGG, WAV    |
+| `ICECAST_URL`          | **Yes**  |         | Icecast server and path to stream to IE => 192.168.1.10/myRadio |
+| `ICECAST_PWD`          | **Yes**  |         | The Icecast server **source** password                          |
+
+### Passing RTL-SDR USB
+
+#### By Device
+
+Run `lsusb` to get a list of USB devices attached to your host. It will look like this:
+
+```
+$ lsusb
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 001 Device 002: ID 8087:0032 Intel Corp. AX210 Bluetooth
+Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+...
+Bus 005 Device 006: ID 0bda:2838 Realtek Semiconductor Corp. RTL2838 DVB-T
+Bus 006 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+```
+
+Look for your device, it usually has **RTL** or **DVB-T** in the name. Use the `Bus` and `Device` identifiers to build the path to your usb device. EX:
+
+> Bus **005** Device **006**: ID 0bda:2838 Realtek Semiconductor Corp. RTL2838 DVB-T
+
+```
+/dev/bus/usb/005/006
+```
+
+Pass this into your docker run command like this:
+
+```
+--device /dev/bus/usb/005/006
+```
+
+#### Privileged
+
+Alternatively, use [`--privileged`](https://docs.docker.com/engine/reference/commandline/run/) to pass all host capabilities (not very secure) which will ensure your USB device is visible regardless of where it is.
