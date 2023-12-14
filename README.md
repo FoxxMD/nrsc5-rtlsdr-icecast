@@ -18,7 +18,7 @@ docker.io/foxxmd/nrsc5-rtlsdr-icecast
 It should be straightforward to get this going, assuming you have Docker and compose setup:
 
 1. Clone this repo
-2. Run `docker build -t nrsc5`
+2. Run `docker build -t nrsc5 .`
 
 Substitute `nrsc5` for remote images (docker.io/ghcr.io) in documentation.
 
