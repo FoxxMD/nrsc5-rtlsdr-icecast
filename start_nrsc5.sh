@@ -1,10 +1,5 @@
 #!/bin/sh
 
-PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
-
-ACTUAL_CHANNEL="${CHANNEL:-1}"
-INDEXED_CHANNEL="$(($ACTUAL_CHANNEL - 1))"
-
 # --- nrsc5 configuration ---
 #
 # Using raw output to avoid WAV file limitations for constant streaming
@@ -18,6 +13,19 @@ INDEXED_CHANNEL="$(($ACTUAL_CHANNEL - 1))"
 # https://www.reddit.com/r/ffmpeg/comments/ld4zyt/is_it_possiible_to_make_ffmpeg_restart/
 # https://ffmpeg.org/ffmpeg-all.html#fifo-1
 
+PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
+
+ACTUAL_CHANNEL="${CHANNEL:-1}"
+INDEXED_CHANNEL="$(($ACTUAL_CHANNEL - 1))"
+
+STATS_INT="${STATS_INTERVAL:-0.5}"
+
+if [ "$STATS_INT" = "0" ]; then
+    STATS_OPT="-nostats"
+  else
+    STATS_OPT="-stats_period $STATS_INT"
+fi
+
 while :
 do
 	echo "------ Starting stream ------"
@@ -30,6 +38,8 @@ do
 	case $AUDIO_FORMAT in
 	  OGG)
       nrsc5 -q -t raw -o - "$RADIO_STATION" "$INDEXED_CHANNEL" | ffmpeg -re \
+            -hide_banner \
+            $STATS_OPT \
             -vn \
             -ac 2 \
             -channel_layout stereo \
@@ -49,6 +59,8 @@ do
 	    ;;
 	  WAV)
       nrsc5 -q -t raw -o - "$RADIO_STATION" "$INDEXED_CHANNEL" | ffmpeg -re \
+            -hide_banner \
+            $STATS_OPT \
             -vn \
             -ac 2 \
             -channel_layout stereo \
@@ -67,6 +79,8 @@ do
 	    ;;
 	  MP3|*)
 	    nrsc5 -q -t raw -o - "$RADIO_STATION" "$INDEXED_CHANNEL" | ffmpeg -re \
+            -hide_banner \
+            $STATS_OPT \
             -vn \
             -ac 2 \
             -channel_layout stereo \

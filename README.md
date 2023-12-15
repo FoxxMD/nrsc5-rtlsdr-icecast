@@ -1,6 +1,6 @@
 # nrsc5-rtlsdr-icecast
 
-Based on [sample-icecast-nrsc5](https://github.com/zacs/sample-icecast-nrsc5) by [zacs](https://github.com/zacs) with inspiration from this [pull request.](https://github.com/zacs/sample-icecast-nrsc5/pull/1)
+Based on [sample-icecast-nrsc5](https://github.com/zacs/sample-icecast-nrsc5) by [zacs](https://github.com/zacs).
 
 Use an RTL-SDR radio to stream HD radio to an Icecast server. If you do not already have an Icecast server setup I would recommend [jeer/docker-icecast.](https://github.com/jee-r/docker-icecast)
 
@@ -31,13 +31,14 @@ Minimal run command example:
 
 Or use the [docker-compose.yml](/docker-compose.yml) example.
 
-| Environmental Variable | Required | Default |                           Description                           |
-|------------------------|----------|---------|-----------------------------------------------------------------|
-| `RADIO_STATION`        | **Yes**  |         | The radio station to tune to                                    |
-| `CHANNEL`              | No       | 1       | The HD channel on the radio station to tune in to               |
-| `AUDIO_FORMAT`         | No       | MP3     | Encode icecast stream to this format. Options: MP3, OGG, WAV    |
-| `ICECAST_URL`          | **Yes**  |         | Icecast server and path to stream to IE => 192.168.1.10/myRadio |
-| `ICECAST_PWD`          | **Yes**  |         | The Icecast server **source** password                          |
+| Environmental Variable | Required | Default |                                                                  Description                                                                  |
+|------------------------|----------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `ICECAST_URL`          | **Yes**  |         | Icecast server and path to stream to IE => 192.168.1.10/myRadio                                                                               |
+| `ICECAST_PWD`          | **Yes**  |         | The Icecast server **source** password                                                                                                        |
+| `RADIO_STATION`        | **Yes**  |         | The radio station to tune to                                                                                                                  |
+| `CHANNEL`              | No       | 1       | The HD channel on the radio station to tune in to                                                                                             |
+| `AUDIO_FORMAT`         | No       | MP3     | Encode icecast stream to this format. Options: MP3, OGG, WAV                                                                                  |
+| `STATS_INTERVAL`       | No       | 0.5     | Interval, in seconds, ffmpeg outputs progress stats. Set to a high number to avoid noisy, non-interactive log output OR set to `0` to disable |
 
 ### Passing RTL-SDR USB
 
