@@ -42,7 +42,7 @@ Or use the [docker-compose.yml](/docker-compose.yml) example.
 
 #### By rtl_tcp
 
-Connect to a [rtl_tcp server](https://manpages.ubuntu.com/manpages/lunar/en/man1/rtl_tcp.1.html) ([dockerized example]) by using the `RTL_TCP` ENV documented under [usage](#usage).
+Connect to a [rtl_tcp server](https://manpages.ubuntu.com/manpages/lunar/en/man1/rtl_tcp.1.html) ([dockerized example](https://hub.docker.com/r/kosdk/rtl-tcp)) by using the `RTL_TCP` ENV documented under [usage](#usage).
 
 #### By Device
 
