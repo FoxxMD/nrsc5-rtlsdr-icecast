@@ -2,7 +2,7 @@
 
 Based on [sample-icecast-nrsc5](https://github.com/zacs/sample-icecast-nrsc5) by [zacs](https://github.com/zacs).
 
-Use an RTL-SDR radio to stream HD radio to an Icecast server. If you do not already have an Icecast server setup I would recommend [jeer/docker-icecast.](https://github.com/jee-r/docker-icecast)
+Use an RTL-SDR device to stream HD radio to an Icecast server. If you do not already have an Icecast server setup I would recommend [jeer/docker-icecast](https://github.com/jee-r/docker-icecast).
 
 ## Setup
 
@@ -15,8 +15,6 @@ docker.io/foxxmd/nrsc5-rtlsdr-icecast
 
 ### Local Docker Build
 
-It should be straightforward to get this going, assuming you have Docker and compose setup:
-
 1. Clone this repo
 2. Run `docker build -t nrsc5 .`
 
@@ -28,7 +26,6 @@ Minimal run command example:
 ```
  docker run -e "RADIO_STATION=90.1" -e "ICECAST_URL=192.168.1.10:8000/myradio" -e "ICECAST_PWD=icecastPass" --device /dev/bus/usb/005/006 ghcr.io/foxxmd/nrsc5-rtlsdr-icecast
 ```
-
 Or use the [docker-compose.yml](/docker-compose.yml) example.
 
 | Environmental Variable | Required | Default |                                                                  Description                                                                  |
@@ -38,9 +35,14 @@ Or use the [docker-compose.yml](/docker-compose.yml) example.
 | `RADIO_STATION`        | **Yes**  |         | The radio station to tune to                                                                                                                  |
 | `CHANNEL`              | No       | 1       | The HD channel on the radio station to tune in to                                                                                             |
 | `AUDIO_FORMAT`         | No       | MP3     | Encode icecast stream to this format. Options: MP3, OGG, WAV                                                                                  |
+| `RTL_TCP`              | No       |         | Connect to rtl-tcp server instead of using hardware device. Syntax [HOST]:[PORT] -- EX 192.168.1.10:1234                                      |
 | `STATS_INTERVAL`       | No       | 0.5     | Interval, in seconds, ffmpeg outputs progress stats. Set to a high number to avoid noisy, non-interactive log output OR set to `0` to disable |
 
-### Passing RTL-SDR USB
+### Accessing RTL-SDR USB
+
+#### By rtl_tcp
+
+Connect to a [rtl_tcp server](https://manpages.ubuntu.com/manpages/lunar/en/man1/rtl_tcp.1.html) ([dockerized example]) by using the `RTL_TCP` ENV documented under [usage](#usage).
 
 #### By Device
 

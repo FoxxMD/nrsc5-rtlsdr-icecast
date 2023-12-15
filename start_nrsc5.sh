@@ -26,6 +26,15 @@ if [ "$STATS_INT" = "0" ]; then
     STATS_OPT="-stats_period $STATS_INT"
 fi
 
+RTL_OPT=""
+RTL_HUMAN=""
+if [ -n "$RTL_TCP" ]; then
+    RTL_OPT="-H $RTL_TCP"
+    RTL_HUMAN=" through rtl-tcp server $RTL_TCP"
+fi
+
+NRSC_CMD="nrsc5 -q -t raw $RTL_OPT -o - $RADIO_STATION $INDEXED_CHANNEL"
+
 while :
 do
 	echo "------ Starting stream ------"
@@ -33,12 +42,12 @@ do
 	ffmpeg -version | head -n 1
 	nrsc5 -v
 	echo "-----------------------------"
-	echo "Listening on $RADIO_STATION Channel ${CHANNEL:-1} and encoding to ${AUDIO_FORMAT:-MP3}";
-	#echo "CMD => nrsc5 -q -t raw -o - $RADIO_STATION $INDEXED_CHANNEL"
+	echo "Listening on $RADIO_STATION Channel ${CHANNEL:-1}$RTL_HUMAN and encoding to ${AUDIO_FORMAT:-MP3}";
+	echo "CMD => $NRSC_CMD"
 	echo "-----------------------------"
 	case $AUDIO_FORMAT in
 	  OGG)
-      nrsc5 -q -t raw -o - "$RADIO_STATION" "$INDEXED_CHANNEL" | ffmpeg -re \
+      $NRSC_CMD | ffmpeg -re \
             -hide_banner \
             $STATS_OPT \
             -vn \
@@ -59,7 +68,7 @@ do
             icecast://source:"$ICECAST_PWD"@"$ICECAST_URL"
 	    ;;
 	  WAV)
-      nrsc5 -q -t raw -o - "$RADIO_STATION" "$INDEXED_CHANNEL" | ffmpeg -re \
+      $NRSC_CMD | ffmpeg -re \
             -hide_banner \
             $STATS_OPT \
             -vn \
@@ -79,7 +88,7 @@ do
             icecast://source:"$ICECAST_PWD"@"$ICECAST_URL"
 	    ;;
 	  MP3|*)
-	    nrsc5 -q -t raw -o - "$RADIO_STATION" "$INDEXED_CHANNEL" | ffmpeg -re \
+	    $NRSC_CMD | ffmpeg -re \
             -hide_banner \
             $STATS_OPT \
             -vn \

@@ -3,12 +3,14 @@ version: '3.7'
 services:
   nrsc5:
     image: ghcr.io/foxxmd/nrsc5-rtlsdr-icecast
-    container_name: nrsc5
+    container_name: nrsc5-rtlsdr-icecast
     environment:
+      - ICECAST_URL=localhost:8000/myradio
+      - ICECAST_PWD=hackme
       - RADIO_STATION=90.1
       #- CHANNEL=1
       #- AUDIO_FORMAT=MP3
-      - ICECAST_URL=localhost:8000/myradio
-      - ICECAST_PWD=hackme
+      #- RTL_TCP=192.168.1.10:1234
+      #- STATS_INTERVAL=0 # use either this OR devices below for RTL-SDR device access
     devices:
       - "/dev/bus/usb/005/006"
