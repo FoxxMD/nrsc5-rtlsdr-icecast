@@ -30,9 +30,10 @@ while :
 do
 	echo "------ Starting stream ------"
 	lame --version | head -n 1
+	ffmpeg -version | head -n 1
+	nrsc5 -v
 	echo "-----------------------------"
 	echo "Listening on $RADIO_STATION Channel ${CHANNEL:-1} and encoding to ${AUDIO_FORMAT:-MP3}";
-	nrsc5 -v
 	#echo "CMD => nrsc5 -q -t raw -o - $RADIO_STATION $INDEXED_CHANNEL"
 	echo "-----------------------------"
 	case $AUDIO_FORMAT in

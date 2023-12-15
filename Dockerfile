@@ -1,4 +1,4 @@
-FROM ${DOCKER_ARCH}alpine:3.12
+FROM ${DOCKER_ARCH}alpine:3.18
 
 RUN \
   apk add \
@@ -12,7 +12,7 @@ RUN \
     libtool \
     libao-dev \
     fftw-dev \
-    libshout=2.4.3-r1 \
+    libshout=2.4.6-r3 \
     lame \
     lame-dev \
     libshout-dev \
