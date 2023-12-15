@@ -1,9 +1,9 @@
 FROM ${DOCKER_ARCH}alpine:3.18
 
 RUN \
+  echo "**** install build packages ****" && \
   apk add \
     --no-cache \
-    --repository 'http://dl-cdn.alpinelinux.org/alpine/edge/main' \
     build-base \
     cmake \
     autoconf \
@@ -12,13 +12,17 @@ RUN \
     libtool \
     libao-dev \
     fftw-dev \
-    libshout=2.4.6-r3 \
+    libshout \
     lame \
     lame-dev \
     libshout-dev \
     git \
     rtl-sdr \
-    ffmpeg
+    ffmpeg && \
+    echo "**** cleanup ****" && \
+    rm -rf \
+      /root/.cache \
+      /tmp/*
 
 #
 # Pull nrsc5 source code from GitHub, compile it and install it
