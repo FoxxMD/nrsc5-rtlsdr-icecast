@@ -32,6 +32,7 @@ RUN \
       && make \
       && make install && \
     echo "**** cleanup ****" && \
+    rm -rf /nrsc5 && \
     apk del .build-deps && \
     rm -rf \
       /root/.cache \
