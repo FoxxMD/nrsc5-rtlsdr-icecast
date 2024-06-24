@@ -35,8 +35,62 @@ fi
 
 NRSC_CMD="nrsc5 -q -t raw $RTL_OPT -o - $RADIO_STATION $INDEXED_CHANNEL"
 
-while :
-do
+ffmpeg_pipe () {
+
+  AUDIO_ARGS=""
+  FORMAT_ARGS=""
+  FIFO_ARGS=""
+  EXTRA_ARGS=""
+  ICECAST_ARGS="icecast://source:$ICECAST_PWD@$ICECAST_URL"
+  OUTPUT_ARGS=$ICECAST_ARGS
+  if [ -n "${FFMPEG_OUTPUT}" ];then
+    OUTPUT_ARGS=FFMPEG_OUTPUT
+  fi
+
+  case $AUDIO_FORMAT in
+    OGG)
+      AUDIO_ARGS="-c:a libvorbis"
+      FIFO_ARGS="-fifo_format ogg"
+      FORMAT_ARGS="-format_opts content_type=audio/ogg"
+      EXTRA_ARGS="-aq 4"
+      ;;
+    WAV)
+      AUDIO_ARGS="-c:a cop"
+      FIFO_ARGS="-fifo_format s16le"
+      FORMAT_ARGS="-format_opts content_type=audio/ogg"
+      ;;
+    MP3|*)
+      AUDIO_ARGS="-q:a 3 -c:a libmp3lame"
+      FIFO_ARGS="-fifo_format mp3"
+      FORMAT_ARGS="-format_opts content_type=audio/mp3"
+      ;;
+  esac
+
+  set -x
+  ffmpeg -re \
+        -hide_banner \
+        $STATS_OPT \
+        -vn \
+        -ac 2 \
+        -channel_layout stereo \
+        -ar 44100 \
+        -f s16le -i - \
+        $AUDIO_ARGS \
+        $FORMAT_ARGS \
+        -f fifo \
+        $FIFO_ARGS \
+        $FORMAT_ARGS \
+        -map 0:a \
+        -drop_pkts_on_overflow 1 \
+        -attempt_recovery 1 \
+        -recovery_wait_time 1 \
+        -queue_size 100 \
+        $EXTRA_ARGS \
+        $OUTPUT_ARGS
+}
+
+#while :
+#do
 	echo "------ Starting stream ------"
 	lame --version | head -n 1
 	ffmpeg -version | head -n 1
@@ -45,83 +99,6 @@ do
 	echo "Listening on $RADIO_STATION Channel ${CHANNEL:-1}$RTL_HUMAN and encoding to ${AUDIO_FORMAT:-MP3}";
 	echo "CMD => $NRSC_CMD"
 	echo "-----------------------------"
-	case $AUDIO_FORMAT in
-	  OGG)
-      $NRSC_CMD | ffmpeg -re \
-            -hide_banner \
-            $STATS_OPT \
-            -vn \
-            -ac 2 \
-            -channel_layout stereo \
-            -ar 44100 \
-            -f s16le -i - \
-            -c:a libvorbis \
-            -f fifo \
-            -fifo_format ogg \
-            -format_opts content_type=audio/ogg \
-            -map 0:a \
-            -drop_pkts_on_overflow 1 \
-            -attempt_recovery 1 \
-            -recovery_wait_time 1 \
-            -queue_size 100 \
-            -aq 4 \
-            icecast://source:"$ICECAST_PWD"@"$ICECAST_URL"
-	    ;;
-	  WAV)
-      $NRSC_CMD | ffmpeg -re \
-            -hide_banner \
-            $STATS_OPT \
-            -vn \
-            -ac 2 \
-            -channel_layout stereo \
-            -ar 44100 \
-            -f s16le -i - \
-            -c:a copy \
-            -f fifo \
-            -fifo_format s16le \
-            -format_opts content_type=audio/ogg \
-            -map 0:a \
-            -drop_pkts_on_overflow 1 \
-            -attempt_recovery 1 \
-            -recovery_wait_time 1 \
-            -queue_size 100 \
-            icecast://source:"$ICECAST_PWD"@"$ICECAST_URL"
-	    ;;
-	  MP3|*)
-	    $NRSC_CMD | ffmpeg -re \
-            -hide_banner \
-            $STATS_OPT \
-            -vn \
-            -ac 2 \
-            -channel_layout stereo \
-      	    -ar 44100 \
-      	    -f s16le -i - \
-      	    -q:a 3 -c:a libmp3lame \
-      	    -f fifo \
-      	    -fifo_format mp3 \
-      	    -format_opts content_type=audio/mp3 \
-      	    -map 0:a \
-      	    -drop_pkts_on_overflow 1 \
-      	    -attempt_recovery 1 \
-      	    -recovery_wait_time 1 \
-      	    -queue_size 100 \
-      	    icecast://source:"$ICECAST_PWD"@"$ICECAST_URL"
-	    ;;
-	esac
+	$NRSC_CMD | ffmpeg_pipe
 	echo "------ Stream exited --------"
-done
-
-
-# example using default (wav) nrsc5 output
-#	    nrsc5 -q -o - "$RADIO_STATION" "$INDEXED_CHANNEL" | ffmpeg -i - -vn -re \
-#	    -ar 44100 \
-#	    -q:a 3 -c:a libmp3lame \
-#	    -f fifo \
-#	    -fifo_format mp3 \
-#	    -format_opts content_type=audio/mp3 \
-#	    -map 0:a \
-#	    -drop_pkts_on_overflow 1 \
-#	    -attempt_recovery 1 \
-#	    -recovery_wait_time 1 \
-#	    -queue_size 100 \
-#	    icecast://source:"$ICECAST_PWD"@"$ICECAST_URL"
+#done
