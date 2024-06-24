@@ -33,7 +33,7 @@ if [ -n "$RTL_TCP" ]; then
     RTL_HUMAN=" through rtl-tcp server $RTL_TCP"
 fi
 
-NRSC_CMD="nrsc5 -q -t raw $RTL_OPT -o - $RADIO_STATION $INDEXED_CHANNEL"
+NRSC_CMD="nrsc5 -t raw $RTL_OPT -o - $RADIO_STATION $INDEXED_CHANNEL"
 
 ffmpeg_pipe () {
 
@@ -89,8 +89,40 @@ ffmpeg_pipe () {
         $OUTPUT_ARGS
 }
 
-#while :
-#do
+nrsc_logging() {
+
+INIT=1
+TITLE=""
+NEW_TITLE=""
+while IFS= read line; do
+
+  if [ "$INIT" = 1 ]; then
+    # https://stackoverflow.com/questions/229551/how-to-check-if-a-string-contains-a-substring-in-bash
+    case "$line" in
+      *Title*)
+        # Do stuff
+        INIT=0
+        ;;
+      *)
+        echo "${line}"
+        ;;
+    esac
+  else
+    case "$line" in
+      *Title*)
+      # https://stackoverflow.com/a/58379307/1469797
+      NEW_TITLE=$(echo "$line" | sed -nr 's/.+ Title: (.+)/\1/p')
+      if [ "$TITLE" != "$NEW_TITLE" ]; then
+        echo "New Title: $NEW_TITLE"
+        TITLE="$NEW_TITLE"
+      fi
+        ;;
+    esac
+  fi
+
+done
+}
+
 	echo "------ Starting stream ------"
 	lame --version | head -n 1
 	ffmpeg -version | head -n 1
@@ -99,6 +131,6 @@ ffmpeg_pipe () {
 	echo "Listening on $RADIO_STATION Channel ${CHANNEL:-1}$RTL_HUMAN and encoding to ${AUDIO_FORMAT:-MP3}";
 	echo "CMD => $NRSC_CMD"
 	echo "-----------------------------"
-	$NRSC_CMD | ffmpeg_pipe
+	# https://stackoverflow.com/a/27673635/1469797
+	{ $NRSC_CMD 2>&3 | ffmpeg_pipe; } 3>&1 1>&2 | nrsc_logging
 	echo "------ Stream exited --------"
-#done

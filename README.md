@@ -1,8 +1,12 @@
 # nrsc5-rtlsdr-icecast
 
+[![Docker Pulls](https://img.shields.io/docker/pulls/foxxmd/nrsc5-rtlsdr-icecast)](https://hub.docker.com/r/foxxmd/nrsc5-rtlsdr-icecast)
+
 Based on [sample-icecast-nrsc5](https://github.com/zacs/sample-icecast-nrsc5) by [zacs](https://github.com/zacs).
 
-Use an RTL-SDR device to stream HD radio to an Icecast server. If you do not already have an Icecast server setup I would recommend [jeer/docker-icecast](https://github.com/jee-r/docker-icecast).
+Use an RTL-SDR device to stream HD radio to an Icecast server or ENV-provided ffmpeg output.
+
+If you do not already have an Icecast server setup I would recommend [jeer/docker-icecast](https://github.com/jee-r/docker-icecast).
 
 ## Setup
 
@@ -13,12 +17,16 @@ ghcr.io/foxxmd/nrsc5-rtlsdr-icecast
 docker.io/foxxmd/nrsc5-rtlsdr-icecast
 ```
 
+Images for x86/arm are built with [optimized instruction sets](https://github.com/theori-io/nrsc5?tab=readme-ov-file#building-on-ubuntu-debian-or-raspbian) (NEON/SSSE3).
+
 ### Local Docker Build
 
 1. Clone this repo
 2. Run `docker build -t nrsc5 .`
 
 Substitute `nrsc5` for remote images (docker.io/ghcr.io) in documentation.
+
+Image will be built with [optimized instruction set](https://github.com/theori-io/nrsc5?tab=readme-ov-file#building-on-ubuntu-debian-or-raspbian) (NEON/SSSE3) based on your host architecture.
 
 ## Usage
 
@@ -28,15 +36,18 @@ Minimal run command example:
 ```
 Or use the [docker-compose.yml](/docker-compose.yml) example.
 
-| Environmental Variable | Required | Default |                                                                  Description                                                                  |
+| Environmental Variable | Required | Default | Description                                                                                                                                   |
 |------------------------|----------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| `ICECAST_URL`          | **Yes**  |         | Icecast server and path to stream to IE => 192.168.1.10/myRadio                                                                               |
-| `ICECAST_PWD`          | **Yes**  |         | The Icecast server **source** password                                                                                                        |
 | `RADIO_STATION`        | **Yes**  |         | The radio station to tune to                                                                                                                  |
 | `CHANNEL`              | No       | 1       | The HD channel on the radio station to tune in to                                                                                             |
-| `AUDIO_FORMAT`         | No       | MP3     | Encode icecast stream to this format. Options: MP3, OGG, WAV                                                                                  |
 | `RTL_TCP`              | No       |         | Connect to rtl-tcp server instead of using hardware device. Syntax [HOST]:[PORT] -- EX 192.168.1.10:1234                                      |
+| `AUDIO_FORMAT`         | No       | MP3     | Encode icecast stream to this format. Options: MP3, OGG, WAV                                                                                  |
+| `ICECAST_URL`          | No       |         | Icecast server and path to stream to IE => 192.168.1.10/myRadio                                                                               |
+| `ICECAST_PWD`          | No       |         | The Icecast server **source** password                                                                                                        |
+| `FFMPEG_OUTPUT`        | No       |         | Provide your own output args to `ffmpeg` rather than using icecast                                                                            |
 | `STATS_INTERVAL`       | No       | 0.5     | Interval, in seconds, ffmpeg outputs progress stats. Set to a high number to avoid noisy, non-interactive log output OR set to `0` to disable |
+
+Along with ffmpeg stats the container will log changes to the program title.
 
 ### Accessing RTL-SDR USB
 
