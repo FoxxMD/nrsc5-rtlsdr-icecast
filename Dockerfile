@@ -35,7 +35,7 @@ RUN \
     && if [ "$DOCKER_ARCH" = "arm64" ] || [ "$TARGETPLATFORM" = "linux/arm64" ]; then export USE_NEON=ON; echo 'Using NEON'; fi \
     && git clone https://github.com/TheDaChicken/nrsc5.git \
       && cd nrsc5/ \
-      && git checkout ae83b3d7dde0ef2604255a666fa84cac864c7463 \
+      && git checkout 7909b87cd0b1281d0a3bf51930cef9ba81fc60f1 \
       && mkdir build \
       && cd build \
       && echo "Build CMD => cmake ../ -DUSE_SSE=$USE_SSE -DUSE_NEON=$USE_NEON" \
