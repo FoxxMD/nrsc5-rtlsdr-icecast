@@ -33,9 +33,9 @@ RUN \
     && export USE_NEON=$USE_NEON \
     && if [ "$DOCKER_ARCH" = "amd64" ] || [ "$TARGETPLATFORM" = "linux/amd64" ]; then export USE_SSE=ON; echo 'Using SSE'; fi \
     && if [ "$DOCKER_ARCH" = "arm64" ] || [ "$TARGETPLATFORM" = "linux/arm64" ]; then export USE_NEON=ON; echo 'Using NEON'; fi \
-    && git clone https://github.com/TheDaChicken/nrsc5.git \
+    && git clone https://github.com/theori-io/nrsc5.git \
       && cd nrsc5/ \
-      && git checkout 74b4495d45f8d189e1d2a0a7edc4252581426864 \
+      && git checkout 1214b7843c0db154ae1559f8ca5633b5108a6068 \
       && mkdir build \
       && cd build \
       && echo "Build CMD => cmake ../ -DUSE_SSE=$USE_SSE -DUSE_NEON=$USE_NEON" \
